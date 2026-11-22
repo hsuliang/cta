@@ -451,7 +451,7 @@
         <a class="btn btn-primary" href="https://colab.research.google.com/github/hsuliang/cta/blob/main/%E3%84%9A%E4%BA%AE%E7%AC%91%E9%95%B7%E7%9A%84%20Colab%E8%BD%89%E9%8C%84%E5%8A%A9%E6%89%8B.ipynb" target="_blank" rel="noopener">
           🚀 方法 A：一鍵在 Google Colab 直接開啟
         </a>
-        <a class="btn btn-drive" href="https://raw.githubusercontent.com/hsuliang/cta/main/%E3%84%9A%E4%BA%AE%E7%AC%91%E9%95%B7%E7%9A%84%20Colab%E8%BD%89%E9%8C%84%E5%8A%A9%E6%89%8B.ipynb" download="ㄚ亮笑長的 Colab轉錄助手.ipynb" target="_blank" rel="noopener">
+        <a class="btn btn-drive" href="./%E3%84%9A%E4%BA%AE%E7%AC%91%E9%95%B7%E7%9A%84%20Colab%E8%BD%89%E9%8C%84%E5%8A%A9%E6%89%8B.ipynb" download="ㄚ亮笑長的 Colab轉錄助手.ipynb" onclick="return downloadNotebook(event, this);">
           📥 方法 B：從 GitHub 下載 .ipynb 程式檔
         </a>
         <a class="btn btn-secondary" href="https://ctb.52hal.cc" target="_blank" rel="noopener">
@@ -752,6 +752,37 @@
         panelA.className = 'track-panel';
         panelB.className = 'track-panel show';
       }
+    }
+    function downloadNotebook(e, btn) {
+      e.preventDefault();
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '⏳ 正在下載 .ipynb 檔案...';
+      const targetUrl = (location.protocol === 'file:')
+        ? 'https://hsuliang.github.io/cta/%E3%84%9A%E4%BA%AE%E7%AC%91%E9%95%B7%E7%9A%84%20Colab%E8%BD%89%E9%8C%84%E5%8A%A9%E6%89%8B.ipynb'
+        : './%E3%84%9A%E4%BA%AE%E7%AC%91%E9%95%B7%E7%9A%84%20Colab%E8%BD%89%E9%8C%84%E5%8A%A9%E6%89%8B.ipynb';
+
+      fetch(targetUrl)
+        .then(res => {
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res.blob();
+        })
+        .then(blob => {
+          const blobUrl = URL.createObjectURL(new Blob([blob], { type: 'application/octet-stream' }));
+          const a = document.createElement('a');
+          a.href = blobUrl;
+          a.download = 'ㄚ亮笑長的 Colab轉錄助手.ipynb';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 3000);
+          btn.innerHTML = '✅ 已開始下載！請到「下載」資料夾查看';
+          setTimeout(() => { btn.innerHTML = origHtml; }, 2800);
+        })
+        .catch(() => {
+          btn.innerHTML = origHtml;
+          window.open(targetUrl, '_blank');
+        });
+      return false;
     }
   </script>
 </body>
