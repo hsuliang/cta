@@ -540,8 +540,12 @@
         <div class="step-item s3">
           <div class="step-badge" style="background:#e8f5e9; color:#2e7d32;">3</div>
           <div class="step-body">
-            <h4 style="color:#2e7d32;">🟨 步驟 3：開始語音辨識與字幕清洗</h4>
-            <p>點擊 <b><code>▶</code></b> 啟動 GPU 高速語音辨識。系統會自動將您的「正向專有名詞」注入辨識提示詞、修復中英夾雜碎片、套用錯字強制替換規則，並於第一句第二行附上署名。</p>
+            <h4 style="color:#2e7d32;">🟨 步驟 3：開始語音辨識與字幕清洗（支援雙引擎自由切換）</h4>
+            <p>點擊 <b><code>▶</code></b> 後會顯示<b>雙引擎語音辨識選擇台</b>（先選好引擎與模型大小，按下綠色按鈕才會按需載入該模型，絕不浪費 GPU 顯存）：</p>
+            <ul>
+              <li><b>⚡ Faster-Whisper（預設，可選 <code>large-v3-turbo / large-v3 / medium / small</code>）</b>：國語與中英夾雜速度最快、時間軸最穩。</li>
+              <li><b>🇹🇼 Qwen3-ASR（可選 <code>1.7B / 0.6B</code> ＋ <code>Qwen3-ForcedAligner-0.6B</code> 對軸搭檔）</b>：專攻<b>台語／國台語夾雜</b>辨識，且轉錄完會自動釋放顯存，隨時可切換另一引擎重測！</li>
+            </ul>
           </div>
         </div>
 
