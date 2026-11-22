@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎙️ ㄚ亮笑長的 Colab 轉錄助手 — 新手無痛上手指南</title>
+  <meta name="description" content="「ㄚ亮笑長的內容助手」Colab 版本完整圖文使用說明：支援 Faster-Whisper GPU 語音轉錄、YouTube 直轉、現成 SRT/TXT 免開 GPU 匯入，一鍵產出全本順稿、9組爆款標題、YouTube 純文字簡介時間軸、Blog 專欄直推 Blogger、三平台社群貼文與四大生圖提示詞！">
+  <style>
+    :root {
+      --primary-dark: #004d40;
+      --primary: #00796b;
+      --primary-light: #e0f2f1;
+      --accent: #ffb300;
+      --accent-dark: #e65100;
+      --blue: #1565c0;
+      --blue-light: #e3f2fd;
+      --purple: #6a1b9a;
+      --purple-light: #f3e5f5;
+      --green: #2e7d32;
+      --green-light: #e8f5e9;
+      --text-main: #263238;
+      --text-muted: #546e7a;
+      --bg-page: #f4f7f9;
+      --card-bg: #ffffff;
+      --border: #cfd8dc;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.75;
+    }
+    /* Sticky Top Navbar */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(0, 77, 64, 0.96);
+      backdrop-filter: blur(10px);
+      color: #fff;
+      padding: 10px 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    }
+    .navbar-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .brand-title {
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: #fff;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand-badge {
+      font-size: 0.75rem;
+      background: var(--accent);
+      color: #00332c;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-weight: 700;
+    }
+    .nav-links {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .nav-links a {
+      color: #e0f2f1;
+      text-decoration: none;
+      font-size: 0.88rem;
+      padding: 5px 12px;
+      border-radius: 99px;
+      background: rgba(255,255,255,0.12);
+      transition: all 0.2s;
+    }
+    .nav-links a:hover {
+      background: var(--accent);
+      color: #00332c;
+      font-weight: 700;
+    }
+
+    /* Hero Header */
+    .hero {
+      background: linear-gradient(135deg, #003d33 0%, #00695c 55%, #00897b 100%);
+      color: #ffffff;
+      padding: 52px 20px 46px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-inner {
+      max-width: 920px;
+      margin: 0 auto;
+    }
+    .hero h1 {
+      margin: 0 0 14px;
+      font-size: clamp(1.75rem, 4vw, 2.55rem);
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.18rem);
+      color: #e0f2f1;
+      max-width: 780px;
+      margin: 0 auto 26px;
+    }
+    .cta-group {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 10px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 24px;
+      border-radius: 12px;
+      font-size: 1.02rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: transform 0.18s, box-shadow 0.18s;
+      cursor: pointer;
+      border: none;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.22);
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #1b262c;
+      box-shadow: 0 4px 14px rgba(255, 179, 0, 0.38);
+    }
+    .btn-secondary {
+      background: rgba(255,255,255,0.16);
+      color: #ffffff;
+      border: 1.5px solid rgba(255,255,255,0.45);
+    }
+    .btn-drive {
+      background: #ffffff;
+      color: var(--primary-dark);
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 32px 18px 64px;
+    }
+    .section-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 26px;
+      margin-bottom: 28px;
+      box-shadow: 0 4px 16px rgba(0, 50, 40, 0.05);
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 0;
+      margin-bottom: 18px;
+      font-size: 1.4rem;
+      color: var(--primary-dark);
+      border-bottom: 2px solid var(--primary-light);
+      padding-bottom: 10px;
+    }
+
+    /* 3 Prep Cards Grid */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(285px, 1fr));
+      gap: 18px;
+    }
+    .prep-card {
+      background: #f9fbfd;
+      border: 1.5px solid #d0dfe5;
+      border-top: 5px solid var(--primary);
+      border-radius: 12px;
+      padding: 18px 20px;
+      position: relative;
+    }
+    .prep-card.warn { border-top-color: var(--accent-dark); background: #fffdf9; }
+    .prep-card.info { border-top-color: var(--blue); background: #f8fbff; }
+    .prep-num {
+      display: inline-block;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.82rem;
+      padding: 3px 10px;
+      border-radius: 99px;
+      margin-bottom: 8px;
+    }
+    .prep-card.warn .prep-num { background: var(--accent-dark); }
+    .prep-card.info .prep-num { background: var(--blue); }
+    .prep-card h3 {
+      margin: 4px 0 10px;
+      font-size: 1.12rem;
+      color: var(--text-main);
+    }
+    .prep-card p, .prep-card ul {
+      margin: 0;
+      font-size: 0.94rem;
+      color: #37474f;
+    }
+    .prep-card ul { padding-left: 20px; margin-top: 6px; }
+
+    /* Interactive Track Switcher */
+    .track-tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+    .track-tab-btn {
+      flex: 1 1 280px;
+      padding: 15px 18px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: #f5f7f8;
+      color: var(--text-muted);
+      font-size: 1.02rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s;
+    }
+    .track-tab-btn.active-a {
+      border-color: var(--blue);
+      background: var(--blue-light);
+      color: #0d47a1;
+      box-shadow: 0 3px 10px rgba(21, 101, 192, 0.14);
+    }
+    .track-tab-btn.active-b {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      box-shadow: 0 3px 10px rgba(0, 121, 107, 0.14);
+    }
+    .track-tab-sub {
+      display: block;
+      font-size: 0.83rem;
+      font-weight: 400;
+      margin-top: 4px;
+      opacity: 0.9;
+    }
+    .track-panel { display: none; }
+    .track-panel.show { display: block; }
+
+    /* Step Timeline */
+    .step-item {
+      display: flex;
+      gap: 16px;
+      padding: 18px 20px;
+      border-radius: 12px;
+      background: #ffffff;
+      border: 1px solid #e0e7ec;
+      border-left: 6px solid var(--primary);
+      margin-bottom: 14px;
+    }
+    .step-item.s1 { border-left-color: #00796b; }
+    .step-item.s2a { border-left-color: #1565c0; }
+    .step-item.s2b { border-left-color: #00897b; }
+    .step-item.s3 { border-left-color: #2e7d32; }
+    .step-item.s4 { border-left-color: #e65100; }
+    .step-item.s5 { border-left-color: #6a1b9a; }
+    .step-badge {
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      font-weight: 800;
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .step-body h4 {
+      margin: 0 0 6px;
+      font-size: 1.1rem;
+    }
+    .step-body p, .step-body ul {
+      margin: 0;
+      font-size: 0.95rem;
+      color: #37474f;
+    }
+    .step-body ul { padding-left: 20px; margin-top: 6px; }
+
+    /* Golden 3 Files Showcase */
+    .golden-file-card {
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbfb 100%);
+      border: 1.5px solid #b2dfdb;
+      border-radius: 12px;
+      padding: 18px 20px;
+    }
+    .golden-file-card h3 {
+      margin: 0 0 8px;
+      font-size: 1.08rem;
+      color: var(--primary-dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .file-tag {
+      display: inline-block;
+      background: #e0f2f1;
+      color: #00695c;
+      font-family: monospace;
+      font-size: 0.84rem;
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-weight: 700;
+    }
+
+    /* War Room 6 Modules Grid */
+    .warroom-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+    .wr-box {
+      padding: 14px 16px;
+      border-radius: 10px;
+      border: 1px solid #e0e0e0;
+      background: #fafafa;
+    }
+    .wr-box h4 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .copy-pill {
+      font-size: 0.75rem;
+      background: var(--primary);
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-weight: 600;
+    }
+
+    /* Accordion Details */
+    details.guide-acc {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 12px;
+      background: #fbfcfd;
+    }
+    details.guide-acc summary {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--primary-dark);
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    details.guide-acc summary::after {
+      content: "➕ 點此展開";
+      font-size: 0.82rem;
+      color: var(--primary);
+      background: var(--primary-light);
+      padding: 3px 10px;
+      border-radius: 99px;
+    }
+    details.guide-acc[open] summary::after {
+      content: "➖ 收合";
+    }
+    .acc-content {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--border);
+      font-size: 0.95rem;
+    }
+    code {
+      background: #eceff1;
+      color: #c62828;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+    .copy-inline-btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    footer {
+      text-align: center;
+      padding: 28px 20px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      border-top: 1px solid var(--border);
+      background: #ffffff;
+    }
+    footer a { color: var(--primary); font-weight: 700; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <!-- 頂部快速導覽列 -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="#" class="brand-title">
+        🎙️ ㄚ亮笑長的 Colab 轉錄助手
+        <span class="brand-badge">使用指南 v2026.11.22</span>
+      </a>
+      <div class="nav-links">
+        <a href="#prep">⚡ 1. 新手起手式 (30秒)</a>
+        <a href="#workflow">🔀 2. 雙軌操作步驟</a>
+        <a href="#outputs">🌟 3. 黃金 3 檔與戰情室</a>
+        <a href="#advanced">🔗 4. Blogger 連結與詞庫</a>
+        <a href="#faq">❓ 5. 常見問題</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero 歡迎橫幅 -->
+  <header class="hero">
+    <div class="hero-inner">
+      <h1>🎙️ ㄚ亮笑長的 Colab 轉錄助手</h1>
+      <p class="hero-sub">
+        從「錄音檔／YouTube 網址／現成 SRT・TXT 文稿」出發，一鍵完成 <b>AI 字幕精準校對</b>、<b>高可讀性全本順稿</b>、<b>9 組爆款標題</b>、<b>YouTube 純文字簡介與時間軸</b>、<b>升級版 Blog 專欄直推 Blogger 草稿</b>、<b>FB/IG/LINE 貼文</b> 與 <b>四大視覺生圖提示詞</b>！
+      </p>
+      <div class="cta-group">
+        <a class="btn btn-primary" href="https://colab.research.google.com/github/hsuliang/cta/blob/main/%E3%84%9A%E4%BA%AE%E7%AC%91%E9%95%B7%E7%9A%84%20Colab%E8%BD%89%E9%8C%84%E5%8A%A9%E6%89%8B.ipynb" target="_blank" rel="noopener">
+          🚀 一鍵在 Google Colab 開啟轉錄助手
+        </a>
+        <a class="btn btn-drive" href="https://drive.google.com/drive/folders/1d-7p2qPB7ohB_TDfGjr1szStDK6hhNn7?usp=sharing" target="_blank" rel="noopener">
+          📂 Google 雲端硬碟備用載點
+        </a>
+        <a class="btn btn-secondary" href="https://ctb.52hal.cc" target="_blank" rel="noopener">
+          🌐 同功能網頁版：ㄚ亮笑長的內容創作助手
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- 區塊 1：新手起手式 30 秒準備 -->
+    <section id="prep" class="section-card">
+      <h2 class="section-header">⚡ 一、拿到程式後的「30 秒起手式」（首次使用必看！）</h2>
+      <div class="grid-3">
+        <div class="prep-card warn">
+          <span class="prep-num">第 1 步（最重要！）</span>
+          <h3>💾 先存一份副本到自己的雲端硬碟</h3>
+          <p>打開 Colab 後，請先點選左上角選單：</p>
+          <ul>
+            <li><b>「檔案 (File) ➔ 在雲端硬碟中儲存副本 (Save a copy in Drive)」</b></li>
+            <li>之後都在您自己的副本上操作，您的專屬詞庫與設定才會永久保存在您個人的雲端硬碟，且與他人完全隔離！</li>
+          </ul>
+        </div>
+
+        <div class="prep-card info">
+          <span class="prep-num">第 2 步（語音轉錄必開）</span>
+          <h3>⚙️ 確認開啟免費 T4 GPU 加速</h3>
+          <p>若要將「音檔或 YouTube 影片」轉成逐字稿：</p>
+          <ul>
+            <li>點選頂部選單<b>「執行階段 (Runtime) ➔ 變更執行階段類型」</b>，硬體加速器選擇 <b><code>T4 GPU</code></b> 後按儲存。</li>
+            <li>💡 <i>若您手邊已經有現成的 <code>.srt</code> 字幕或 <code>.txt</code> 文字檔，<b>連 GPU 都不用開</b>，直接用預設 CPU 跑步驟 2B 即可！</i></li>
+          </ul>
+        </div>
+
+        <div class="prep-card">
+          <span class="prep-num">第 3 步（免費申請）</span>
+          <h3>🔑 準備一把自己的 Gemini API Key</h3>
+          <p>步驟 4 的 AI 全媒體創作需要您自己的免費 Gemini 金鑰：</p>
+          <ul>
+            <li>前往 <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="color:#00796b; font-weight:700;">Google AI Studio 金鑰頁面</a> 登入 Google 帳號，點擊 <b><code>Create API key</code></b> 即可免費複製。</li>
+            <li>貼入步驟 4 時預設以 <code>••••••••</code> 密碼遮罩保護（絕不寫入程式碼外流），且<b>若免費金鑰無高階模型權限，系統會自動無縫降階至可用模型</b>，絕不中斷！</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 區塊 2：雙軌流程切換教學 -->
+    <section id="workflow" class="section-card">
+      <h2 class="section-header">🔀 二、依您手邊的素材，選擇操作路線（點擊下方卡片切換教學）</h2>
+
+      <div class="track-tabs">
+        <button id="btn-track-a" class="track-tab-btn active-a" onclick="switchTrack('a')">
+          🎧 路線 A：我手邊有「音檔 / 影片 / YouTube 網址」
+          <span class="track-tab-sub">開啟 T4 GPU ➔ 依序執行：步驟 1 ➔ 步驟 2A ➔ 步驟 3 ➔ 步驟 4 ➔ 步驟 5</span>
+        </button>
+        <button id="btn-track-b" class="track-tab-btn" onclick="switchTrack('b')">
+          📝 路線 B：我手邊已有「現成 .srt 字幕或 .txt 逐字稿」
+          <span class="track-tab-sub">⚡ 免開 GPU、免跑步驟 1 與步驟 3！直接執行：步驟 2B ➔ 步驟 4</span>
+        </button>
+      </div>
+
+      <!-- 路線 A 步驟 -->
+      <div id="panel-track-a" class="track-panel show">
+        <div class="step-item s1">
+          <div class="step-badge" style="background:#e0f2f1; color:#00695c;">1</div>
+          <div class="step-body">
+            <h4 style="color:#00796b;">🟦 步驟 1：檢查 GPU 與安裝套件</h4>
+            <p>點擊左側的 <b><code>▶</code></b> 執行鈕，首次執行約需 1 分鐘安裝語音辨識引擎與 YouTube 下載器。<b>（同一次連線期間，連續轉錄多支音檔時無須重複執行步驟 1！）</b></p>
+          </div>
+        </div>
+
+        <div class="step-item s2a">
+          <div class="step-badge" style="background:#e3f2fd; color:#1565c0;">2A</div>
+          <div class="step-body">
+            <h4 style="color:#1565c0;">🟩 步驟 2A：選擇音檔／YouTube 來源 & 詞庫設定</h4>
+            <p>支援 4 種音訊來源模式（點擊 <code>▶</code> 後會彈出對應的互動選單）：</p>
+            <ul>
+              <li><b>Google 雲端硬碟（單一音檔 — 互動式下拉選單）</b>：路徑留空直接執行，自動掃描您的雲端硬碟音檔供下拉挑選，免打字！</li>
+              <li><b>🎬 YouTube 網址直轉</b>：貼上 YouTube 影片或直播連結，自動抓音軌並記住 11 碼影片 ID（後續寫 Blog 時會自動在文章頂部嵌入 16:9 影片播放器！）。</li>
+              <li><b>Google 雲端硬碟（資料夾整批全自動轉錄）</b>：一次選取整個資料夾，全自動逐集轉錄並分資料夾歸檔。</li>
+              <li><b>💻 本機上傳</b>：直接從電腦挑選音檔或影片上傳。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="step-item s3">
+          <div class="step-badge" style="background:#e8f5e9; color:#2e7d32;">3</div>
+          <div class="step-body">
+            <h4 style="color:#2e7d32;">🟨 步驟 3：開始語音辨識與字幕清洗</h4>
+            <p>點擊 <b><code>▶</code></b> 啟動 GPU 高速語音辨識。系統會自動將您的「正向專有名詞」注入辨識提示詞、修復中英夾雜碎片、套用錯字強制替換規則，並於第一句第二行附上署名。</p>
+          </div>
+        </div>
+
+        <div class="step-item s4">
+          <div class="step-badge" style="background:#fff3e0; color:#e65100;">4</div>
+          <div class="step-body">
+            <h4 style="color:#e65100;">🟧 步驟 4：雙引擎 AI 全媒體創作工作台</h4>
+            <p>點擊左側 <b><code>▶</code></b> 開啟三合一互動控制中心：</p>
+            <ul>
+              <li>在<b>【🔐 ① 金鑰、情境快捷鍵 & 啟動 AI】</b>分頁貼上您的 Gemini API Key，點選情境快捷鍵（或自由勾選模組 A～E），再按綠色的 <b>「🚀 開始執行 AI 全媒體創作」</b> 按鈕！</li>
+              <li>畫面將透過<b>「五燈獎即時進度儀表板」</b>依序完成創作，並在下方直接展開<b>一頁式「🌟 全媒體創作戰情室」</b>！</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="step-item s5">
+          <div class="step-badge" style="background:#f3e5f5; color:#6a1b9a;">5</div>
+          <div class="step-body">
+            <h4 style="color:#6a1b9a;">🟪 步驟 5 & ⬜ 步驟 6：下載全媒體創作包 ZIP & 清理還原畫面</h4>
+            <p>所有檔案在步驟 4 完成瞬間就已<b>自動存回您雲端硬碟的 <code>轉錄成果_ㄚ亮笑長助手/{音檔同名資料夾}/</code></b> 中！您也可以按<b>步驟 5</b> 下載 ZIP 壓縮包到電腦，或按<b>步驟 6</b> 一鍵收合所有面板並清空暫存，準備處理下一集。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 路線 B 步驟 -->
+      <div id="panel-track-b" class="track-panel">
+        <div style="background:#e0f2f1; border-left:5px solid #00796b; padding:12px 16px; border-radius:8px; margin-bottom:14px; color:#004d40; font-weight:600;">
+          ⚡ 極速直通秘訣：當您手邊已經有剪映匯出的 <code>.srt</code>、YouTube 下載的字幕、或會議紀錄 <code>.txt</code> 時，<b>完全不需要開啟 GPU，也完全不用執行「步驟 1」與「步驟 3」！</b>
+        </div>
+
+        <div class="step-item s2b">
+          <div class="step-badge" style="background:#e0f2f1; color:#00695c;">2B</div>
+          <div class="step-body">
+            <h4 style="color:#00897b;">🟦 步驟 2B：現成 SRT / TXT 匯入（免開 GPU，完成後直接跳步驟 4）</h4>
+            <p>直接拉到<b>「2B. 現成 SRT / TXT 匯入」</b>區塊，選擇匯入方式後點擊左側的 <b><code>▶</code></b>：</p>
+            <ul>
+              <li><b>📂 Google 雲端硬碟下拉選單</b>：自動掃描您雲端硬碟內的 <code>.srt / .vtt / .txt / .md</code> 文稿供下拉挑選。</li>
+              <li><b>💻 本機上傳</b>：直接從電腦選取 <code>.srt</code> 或 <code>.txt</code> 檔上傳（若為 SRT 會 100% 保留原始時間碼；若為純文字 TXT 會自動依標點智慧分句）。</li>
+              <li><b>✍️ 直接貼上純文字／會議筆記</b>：在畫面上彈出的多行文字框直接貼上文稿內容。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="step-item s4">
+          <div class="step-badge" style="background:#fff3e0; color:#e65100;">4</div>
+          <div class="step-body">
+            <h4 style="color:#e65100;">🟧 直接跳到「步驟 4：雙引擎 AI 全媒體創作工作台」！</h4>
+            <p>完成步驟 2B 後，<b>請直接跳過步驟 3</b>，點擊<b>步驟 4</b> 左側的 <b><code>▶</code></b>，貼上 Gemini API Key 後點擊 <b>「🚀 開始執行 AI 全媒體創作」</b>，30 秒內即可產出全套作品！（甚至也可以直接在步驟 4 的<b>【📝 分頁 ③：免轉錄！直接匯入現成 SRT / TXT】</b>直接選檔或貼文字！）</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 區塊 3：黃金 3 檔與一頁式全媒體創作戰情室 -->
+    <section id="outputs" class="section-card">
+      <h2 class="section-header">🌟 三、成果超清爽！認識您的「黃金 3 檔」與「一頁式戰情室」</h2>
+      <p style="margin-top:0; color:#37474f;">
+        告別過去十幾個零碎檔案的混亂！每一集執行完畢後，系統會自動在您的 Google 雲端硬碟 <code>Colab Notebooks/轉錄成果_ㄚ亮笑長助手/</code> 下，建立一個<b>「與音檔同名的專屬子資料夾」</b>，裡面只存放最精華的 <b>3 個黃金核心檔案</b>：
+      </p>
+
+      <div class="grid-3" style="margin-bottom:22px;">
+        <div class="golden-file-card">
+          <h3>1️⃣ 修正後最終字幕檔 <span class="file-tag">{音檔名}.srt</span></h3>
+          <p style="margin:0; font-size:0.93rem; color:#37474f;">
+            100% 鎖定原始時間碼，已由 AI 修正同音異字、補上自然標點並過濾口語贅字，可直接匯入 YouTube、剪映、CapCut 或 Premiere 上字幕。
+          </p>
+        </div>
+        <div class="golden-file-card">
+          <h3>2️⃣ 高可讀性全本順稿 <span class="file-tag">{音檔名}.txt</span></h3>
+          <p style="margin:0; font-size:0.93rem; color:#37474f;">
+            <b>不是零碎的短句堆疊！</b>而是嚴格依照原音檔敘述順序（不省略任何案例與細節），串聯改寫為標點完整、自然分段並附有<code>【段落小標】</code>的流暢全本讀本，可直接印講義或丟進 NotebookLM！
+          </p>
+        </div>
+        <div class="golden-file-card" style="border-color:#ffb300; background:linear-gradient(180deg, #fffdf7 0%, #fff8e1 100%);">
+          <h3>3️⃣ 一頁式互動總覽網頁 <span class="file-tag" style="background:#ffe082; color:#bf360c;">_全媒體創作戰情室.html</span></h3>
+          <p style="margin:0; font-size:0.93rem; color:#37474f;">
+            把所有文案與生圖指令整合在同一張互動網頁裡！無論在 Colab 畫面或下載回電腦點兩下打開，<b>每一區塊都有專屬的「📋 一鍵複製」按鈕</b>！
+          </p>
+        </div>
+      </div>
+
+      <h3 style="margin:0 0 8px; font-size:1.12rem; color:var(--primary-dark);">🗂️ 「全媒體創作戰情室.html」內建的 6 大一鍵複製專區：</h3>
+      <div class="warroom-grid">
+        <div class="wr-box">
+          <h4><span>🔥 1. 9 組爆款主題與標題</span> <span class="copy-pill">📋 單句獨立複製鈕</span></h4>
+          <p style="margin:0; font-size:0.88rem; color:#455a64;">涵蓋「認知衝擊、實用需求、情感共鳴」3 大方案共 9 組主副標題，看中哪一組點一下右側按鈕立即複製。</p>
+        </div>
+        <div class="wr-box">
+          <h4><span>🎬 2. YouTube 簡介欄 & 時間軸</span> <span class="copy-pill" style="background:#d32f2f;">📋 純文字直貼 YT</span></h4>
+          <p style="margin:0; font-size:0.88rem; color:#455a64;"><b>已徹底清除 <code>**</code> 與 <code>###</code> 等 Markdown 符號！</b>複製後直接貼入 YouTube 說明欄免刪字，<code>00:00</code> 時間軸章節自動生效。</p>
+        </div>
+        <div class="wr-box">
+          <h4><span>✍️ 3. 升級版 Blog 專欄與 SEO</span> <span class="copy-pill" style="background:#004d40;">📋 5 顆後台欄位複製鈕</span></h4>
+          <p style="margin:0; font-size:0.88rem; color:#455a64;">獨立提供「複製標題、複製分類標籤、<b>🔗 複製自訂永久連結 (Slug)</b>、複製搜尋描述、複製完整 HTML 原始碼」5 顆按鈕與視覺預覽。</p>
+        </div>
+        <div class="wr-box">
+          <h4><span>📱 4. FB / IG / LINE 社群貼文</span> <span class="copy-pill" style="background:#1565c0;">📋 三平台獨立複製鈕</span></h4>
+          <p style="margin:0; font-size:0.88rem; color:#455a64;">同樣已去 Markdown 符號！針對 FB 故事條列、IG 視覺排版＋Hashtags、LINE 群組短文案＋貼圖建議，點一下直接貼上。</p>
+        </div>
+        <div class="wr-box">
+          <h4><span>🎠 5. 輪播圖 4 張 & Reels 5 張指令</span> <span class="copy-pill" style="background:#6a1b9a;">📋 單鈕一次複製全套</span></h4>
+          <p style="margin:0; font-size:0.88rem; color:#455a64;">內建「多張圖片獨立生成任務 10 大執行規則＋防九宮格拼貼限制」：<b>輪播圖 1:1（1 顆按鈕一次複製 4 張）</b>、<b>Reels 9:16（1 顆按鈕一次複製 5 張）</b>，外加資訊圖表與 YT 16:9 封面提示詞！</p>
+        </div>
+        <div class="wr-box">
+          <h4><span>📄 6. 全本順稿 & 修正後 SRT</span> <span class="copy-pill" style="background:#37474f;">📋 全文一鍵複製</span></h4>
+          <p style="margin:0; font-size:0.88rem; color:#455a64;">可直接在網頁上檢視並一鍵複製高可讀性全本順稿（<code>.txt</code>）或修正後的完整 SRT 字幕。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 區塊 4：進階選配教學（Blogger 一鍵連結 & 詞庫永久記憶） -->
+    <section id="advanced" class="section-card">
+      <h2 class="section-header">🔗 四、進階神技：一鍵推送 Google Blogger 草稿夾 & 詞庫永久記憶</h2>
+
+      <details class="guide-acc" open>
+        <summary>📝 如何將寫好的 Blog 專欄文章「一鍵推送到自己的 Google Blogger 後台草稿夾」？</summary>
+        <div class="acc-content">
+          <p style="margin-top:0;">
+            本工具支援直接連結您個人的 Google Blogger 網誌，自動抓取您名下的網誌清單，並將排好版的 HTML 文章（含 YouTube 影片框、30 秒導讀卡、金句框、回顧表格與分類標籤）一鍵送進 Blogger 草稿夾！<br>
+            🛡️ <b>帳號安全隔離</b>：您的授權資訊只會存在<b>您自己雲端硬碟</b>的 <code>Colab Notebooks/CTB_詞庫設定_永久記憶/blogger_auth.json</code> 中，就算跑 Colab 的帳號與管理 Blogger 的帳號不同也能跨帳號綁定！
+          </p>
+          <ol style="line-height:1.9;">
+            <li>在 Colab 執行<b>「步驟 4」</b>後，點選控制中心的第二個分頁：<b><code>🔗 ② Blogger 一鍵連結 & 網誌選單</code></b>。</li>
+            <li>
+              先點一下這顆按鈕複製 Blogger 權限網址：
+              <button class="copy-inline-btn" onclick="navigator.clipboard.writeText('https://www.googleapis.com/auth/blogger').then(()=>{this.innerText='✅ 已複製權限網址！';this.style.background='#2e7d32';})">📋 點此複製 Blogger 權限網址</button>
+              （<code>https://www.googleapis.com/auth/blogger</code>）
+            </li>
+            <li>開啟 Google 官方乾淨版授權頁 👉 <a href="https://developers.google.com/oauthplayground/" target="_blank" rel="noopener" style="color:#00796b; font-weight:700;">https://developers.google.com/oauthplayground/</a></li>
+            <li>在網頁左下角的 <code>Input your own scopes</code> 框框貼上剛剛複製的權限網址，點擊右側藍色的 <b><code>Authorize APIs</code></b> 按鈕，並選擇<b>擁有 Blogger 網誌的那個 Google 帳號</b>登入允許。</li>
+            <li>進入 <b>Step 2</b> 後，點擊藍色的 <b><code>Exchange authorization code for tokens</code></b>，將右側產生的 <b><code>Access token</code>（或整段含 <code>refresh_token</code> 的 JSON）</b>複製起來。</li>
+            <li>貼回 Colab 的 <b><code>🔑 Blogger 授權：</code></b> 框框，按下 <b>「🔗 連結並抓網誌清單」</b>！下拉選單就會自動列出您的網誌，隨時點擊 <b>「📤 一鍵推送至【草稿夾】」</b> 即可直接進 Blogger 後台預覽發布！</li>
+          </ol>
+        </div>
+      </details>
+
+      <details class="guide-acc">
+        <summary>📖 如何建立自己的「錯字替換規則 & 專有名詞庫」雲端永久記憶？</summary>
+        <div class="acc-content">
+          <ul>
+            <li><b>方法 1（直接在步驟 2A / 2B 表單填寫）</b>：在 <code>錯字替換規則</code>（格式：<code>錯字->正字, 錯字2->正字2</code>）與 <code>正向專有名詞</code> 填入您常用的姓名、學校或課程名稱。只要執行過一次步驟 2A 或 2B，系統就會自動將它們寫入您個人雲端硬碟的 <code>Colab Notebooks/CTB_詞庫設定_永久記憶/</code> 資料夾中永久保存！</li>
+            <li><b>方法 2（與網頁版 <a href="https://ctb.52hal.cc" target="_blank">ctb.52hal.cc</a> 雙向互通）</b>：如果您在網頁版已經匯出過 <code>Batch_Replace_Rules.json</code> 或 <code>AI_Terminology_Rules.json</code>，只需在步驟 2A / 2B 勾選 <b><code>☑️ 從電腦上傳匯入詞庫JSON設定檔</code></b> 執行一次，上傳後就會永久記憶在您的雲端硬碟，之後每次開啟都會全自動載入！</li>
+          </ul>
+        </div>
+      </details>
+    </section>
+
+    <!-- 區塊 5：常見問題 FAQ -->
+    <section id="faq" class="section-card">
+      <h2 class="section-header">❓ 五、常見問題 FAQ 急救包</h2>
+
+      <details class="guide-acc">
+        <summary>Q1：我貼上的 Gemini API Key 或 Blogger 授權，會不會被別人看到？</summary>
+        <div class="acc-content">
+          <b>100% 不會！</b><br>
+          1. 金鑰輸入框採用 <code>••••••••</code> 密碼遮罩設計，只暫存於您當次執行階段的記憶體中，<b>絕對不會寫入 <code>.ipynb</code> 程式碼檔案</b>。<br>
+          2. 詞庫與 Blogger 授權記憶則是存放在<b>您自己個人的 Google 雲端硬碟</b>裡，其他人打開程式時只會讀取他們自己的雲端硬碟，彼此完全獨立安全。
+        </div>
+      </details>
+
+      <details class="guide-acc">
+        <summary>Q2：我的 Gemini API Key 是免費版，沒有最高階模型的權限怎麼辦？</summary>
+        <div class="acc-content">
+          <b>完全不用擔心！</b>程式內建<b>「智慧自動降階梯隊（Auto-Downgrade Ladder）」</b>與<b>「6 秒安全請求間隔護欄」</b>。當系統偵測到您的 API Key 無法呼叫高階模型或額度已滿時，會在 1 秒內自動無縫切換至免費高速的 <code>gemini-3.5-flash-lite</code> / <code>2.5-flash-lite</code> 模型繼續完成所有創作，絕不會報錯中斷！
+        </div>
+      </details>
+
+      <details class="guide-acc">
+        <summary>Q3：為什麼我按下步驟 4 的「▶」後沒有馬上開始跑 AI？</summary>
+        <div class="acc-content">
+          這是為了防止「按 <code>▶</code> 自動開跑」與「點按鈕開跑」重複執行兩次！<br>
+          當您按下步驟 4 左側的 <code>▶</code> 時，系統會先為您打開<b>「三合一互動控制中心」</b>，讓您可以先確認或切換情境快捷鍵、貼上金鑰或選取 Blogger 網誌，確認無誤後點擊綠色的 <b>「🚀 開始執行 AI 全媒體創作」</b> 按鈕就會正式啟動！
+        </div>
+      </details>
+
+      <details class="guide-acc">
+        <summary>Q4：跑完一集之後，想要把畫面清空、接著轉錄下一集該怎麼做？</summary>
+        <div class="acc-content">
+          請直接拉到最下方執行<b>「⬜ 6. 清除本次暫存資料並將畫面還原至初始狀態」</b>！它會自動清除後台暫存檔（不影響已存回雲端硬碟的成果），並<b>一鍵關閉收合前面展開的所有互動面板與預覽畫面</b>，接著您就可以直接回到<b>步驟 2A 或 2B</b> 挑選下一集音檔或文稿（無須重跑步驟 1）！
+        </div>
+      </details>
+    </section>
+
+  </main>
+
+  <footer>
+    <div>🎙️ <b>ㄚ亮笑長的 Colab 轉錄助手</b> ｜ 版本日期：2026.11.22</div>
+    <div style="margin-top:6px;">
+      🌐 同功能網頁版：<a href="https://ctb.52hal.cc" target="_blank" rel="noopener">ㄚ亮笑長的內容創作助手 (https://ctb.52hal.cc)</a> ｜
+      📝 部落格：<a href="https://aliang6724.blogspot.com/" target="_blank" rel="noopener">丫亮笑長練功坊</a>
+    </div>
+  </footer>
+
+  <script>
+    function switchTrack(track) {
+      const btnA = document.getElementById('btn-track-a');
+      const btnB = document.getElementById('btn-track-b');
+      const panelA = document.getElementById('panel-track-a');
+      const panelB = document.getElementById('panel-track-b');
+      if (track === 'a') {
+        btnA.className = 'track-tab-btn active-a';
+        btnB.className = 'track-tab-btn';
+        panelA.className = 'track-panel show';
+        panelB.className = 'track-panel';
+      } else {
+        btnA.className = 'track-tab-btn';
+        btnB.className = 'track-tab-btn active-b';
+        panelA.className = 'track-panel';
+        panelB.className = 'track-panel show';
+      }
+    }
+  </script>
+</body>
+</html>
