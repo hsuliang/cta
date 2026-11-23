@@ -34,7 +34,7 @@ def get_git_date(rel_path: str) -> str:
 
 def detect_series(title: str, filename: str, labels: list[str]) -> str:
     joined = f"{title} {filename} {' '.join(labels)}"
-    if "T++" in joined or "年華" in joined or "思辨" in joined:
+    if "T++" in joined or "年華" in joined or "數位科技思辨課" in joined:
         return "T++教育+年華"
     if "噗噗聊聊" in joined or re.search(r"EP\d+", filename, re.I):
         return "噗噗聊聊 Podcast"
