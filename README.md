@@ -1,4 +1,6 @@
-# 🎙️ ㄚ亮笑長的 Colab 轉錄助手（版本日期：2026.11.22）
+# 🎙️ ㄚ亮笑長的 Colab 轉錄助手
+
+> 「ㄚ亮笑長的內容助手」Colab 版本（版本日期：2026.11.23）
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/hsuliang/cta/blob/main/%E3%84%9A%E4%BA%AE%E7%AC%91%E9%95%B7%E7%9A%84%20Colab%E8%BD%89%E9%8C%84%E5%8A%A9%E6%89%8B.ipynb)
 
